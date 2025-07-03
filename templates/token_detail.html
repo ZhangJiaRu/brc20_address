@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}铭文详情 - {{ ticker }}{% endblock %}
+
+{% block content %}
+    <h2>{{ ticker }} 详情</h2>
+    <section class="info-section">
+        <h3>基本信息</h3>
+        <p><strong>总量：</strong> {{ token.max | default('未知') }}</p>
+        <p><strong>持有人：</strong>{{ token.holdersCount | default('未知') }}</p>
+        <p><strong>创建人：</strong><a href="{{ url_for('address_detail', address=token.holdersCount) }}">{{ token.creator | default('未知') }}</a></p>
+        <p><strong>TX：</strong> <a href="https://mempool.space/zh/tx/{{ token.txid }}">{{ token.txid | default('未知') }}</a></p>
+    </section>
+    <section class="holders-section">
+        <h3>持有者列表</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>地址</th>
+                    <th>持有量</th>
+                    <th>百分比</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for holder in holders %}
+                <tr>
+                    <td><a href="{{ url_for('address_detail', address=holder.address) }}">{{ holder.remark }}</a></td>
+                    <td>{{ holder.overallBalance | default('未知') }}</td>
+                    <td>
+                        {{ "%.2f" % holder.percentage if holder.percentage is defined else '未知' }}%
+                        <div class="progress-bar">
+                            <div class="progress" style="width: {{ holder.percentage | default(0) }}%"></div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}

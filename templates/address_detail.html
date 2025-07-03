@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}地址详情 - {{ address }}{% endblock %}
+
+{% block content %}
+    <h2>{{ address }} 详情</h2>
+    <section class="info-section">
+        <p>
+            <strong>备注：</strong> {{ remark if remark else '无' }}
+            <a href="#" class="edit-link" onclick="document.getElementById('remark-form').style.display='block';return false;">
+                <i class="fas fa-edit"></i> 添加备注
+            </a>
+        </p>
+        <form id="remark-form" method="POST" action="{{ url_for('remarks') }}" class="remark-form inline-remark-form" style="display:none;" onsubmit="submitRemarkForm(event)">
+            <input type="hidden" name="address" value="{{ address }}">
+            <input type="text" name="remark" placeholder="输入备注" value="{{ remark if remark else '' }}">
+            <button type="submit">保存</button>
+            <button type="button" onclick="document.getElementById('remark-form').style.display='none';">取消</button>
+        </form>
+        <h3>资产总览</h3>
+        <p><strong>总估值：</strong> {{ info.data.chainAssets[0].currencyAmount | float | int | default('未知') }} USD</p>
+    </section>
+    <section class="assets-section">
+        <h3>详细资产清单</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>头像</th>
+                    <th>名称</th>
+                    <th>数量</th>
+                    <th>估值</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for token in info.data.tokens.tokenlist %}
+                <tr>
+                    <td>
+                        {% if token.imageUrl %}
+                            <img src="{{ token.imageUrl }}" alt="{{ token.symbol }} 头像" class="token-icon">
+                        {% else %}
+                            <span class="no-icon">无</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('token_detail', ticker=token.symbol) }}">
+                            {{ token.symbol | default('未知') }}
+                        </a>
+                    </td>
+                    <td>{{ token.coinAmount | float | int | default('未知') }}</td>
+                    <td>{{ token.currencyAmount | float | int | default('未知') }} USD</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}
+
+<script>
+    function submitRemarkForm(event) {
+        event.preventDefault();
+        const form = event.target;
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector('.info-section p').innerHTML = `<strong>备注：</strong> ${data.remark || '无'} <a href="#" class="edit-link" onclick="document.getElementById('remark-form').style.display='block';return false;"><i class="fas fa-edit"></i> 添加备注</a>`;
+                form.style.display = 'none';
+            }
+        });
+    }
+</script>

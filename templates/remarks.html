@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}备注管理{% endblock %}
+
+{% block content %}
+    <h2>备注管理</h2>
+    <section class="form-section">
+        <h3>添加单个备注</h3>
+        <form method="POST" action="{{ url_for('remarks') }}" class="remark-form">
+            <input type="text" name="address" placeholder="地址" required>
+            <input type="text" name="remark" placeholder="备注">
+            <button type="submit">添加/编辑备注</button>
+        </form>
+        <h3>批量导入备注</h3>
+        <form method="POST" action="{{ url_for('remarks') }}" class="remark-form">
+            <textarea name="bulk_import" rows="5" placeholder="格式: 地址,备注（每行一个）"></textarea>
+            <button type="submit">导入</button>
+        </form>
+    </section>
+    <section class="remarks-section">
+        <h3>已有备注列表</h3>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>地址</th>
+                    <th>备注</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in remarks %}
+                <tr>
+                    <td>{{ r.address }}</td>
+                    <td>{{ r.remark | default('无') }}</td>
+                    <td><a href="{{ url_for('delete_remark', id=r.id) }}" class="delete-link">删除</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+{% endblock %}

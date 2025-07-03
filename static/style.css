@@ -1,0 +1,385 @@
+/* 全局样式 */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 头部样式 */
+header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    padding: 20px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.search-form input[type="text"] {
+    width: 300px;
+    padding: 10px;
+    border: none;
+    border-radius: 25px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    transition: box-shadow 0.3s;
+}
+
+.search-form input[type="text"]:focus {
+    outline: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.search-form button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    background: #28a745;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.search-form button:hover {
+    background: #218838;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1rem;
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: background 0.3s;
+}
+
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 主内容样式 */
+main {
+    padding: 30px 0;
+}
+
+h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #007bff;
+}
+
+h3 {
+    font-size: 1.4rem;
+    margin: 20px 0 10px;
+    color: #333;
+}
+
+section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+/* 欢迎页面 */
+.welcome-section {
+    text-align: center;
+}
+
+.welcome-section p {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+/* 表格样式 */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.data-table th {
+    background: #f8f9fa;
+    font-weight: 500;
+    color: #333;
+}
+
+.data-table tbody tr:hover {
+    background: #f1f3f5;
+}
+
+.data-table a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.data-table a:hover {
+    text-decoration: underline;
+}
+
+/* 进度条样式 */
+.progress-bar {
+    background: #e0e0e0;
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.progress {
+    background: linear-gradient(90deg, #28a745, #34c759);
+    height: 100%;
+    transition: width 0.3s ease;
+}
+
+/* 表单样式 */
+.remark-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 500px;
+}
+
+.remark-form input,
+.remark-form textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+}
+
+.remark-form input:focus,
+.remark-form textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.remark-form textarea {
+    resize: vertical;
+}
+
+.remark-form button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: #007bff;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.remark-form button:hover {
+    background: #0056b3;
+}
+
+/* 返回链接 */
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #007bff;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* 删除链接 */
+.delete-link {
+    color: #dc3545;
+    text-decoration: none;
+}
+
+.delete-link:hover {
+    color: #a71d2a;
+    text-decoration: underline;
+}
+
+/* 错误提示 */
+.error-message {
+    color: #dc3545;
+    font-weight: 500;
+    margin: 10px 0;
+    text-align: center;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 10px;
+    }
+
+    .search-form {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .search-form input[type="text"] {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .data-table th,
+    .data-table td {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    .remark-form input,
+    .remark-form textarea {
+        width: 100%;
+    }
+}
+/* 头像样式 */
+.token-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    vertical-align: middle;
+}
+
+.no-icon {
+    color: #999;
+    font-size: 0.9rem;
+}
+
+/* 价格变化样式 */
+.price-up {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.price-down {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+/* 表格列宽优化 */
+.data-table th:nth-child(1),
+.data-table td:nth-child(1) {
+    width: 60px;
+    text-align: center;
+}
+
+.data-table th:nth-child(5),
+.data-table td:nth-child(5),
+.data-table th:nth-child(6),
+.data-table td:nth-child(6) {
+    width: 120px;
+    text-align: right;
+}
+
+
+css
+
+/* 编辑链接样式 */
+.edit-link {
+    margin-left: 10px;
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.edit-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.edit-link i {
+    margin-right: 5px;
+}
+
+/* 内联备注表单样式 */
+.inline-remark-form {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    max-width: 500px;
+}
+
+.inline-remark-form input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 0.9rem;
+}
+
+.inline-remark-form button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    background: #007bff;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.inline-remark-form button:hover {
+    background: #0056b3;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .inline-remark-form {
+        flex-direction: column;
+    }
+
+    .inline-remark-form input[type="text"] {
+        width: 100%;
+    }
+
+    .inline-remark-form button {
+        width: 100%;
+    }
+}
+.inline-remark-form button[type="button"] {
+    background: #6c757d;
+}
+.inline-remark-form button[type="button"]:hover {
+    background: #5a6268;
+}
