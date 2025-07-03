@@ -1,94 +1,78 @@
 {% extends 'base.html' %}
 
-{% block title %}铭文详情 - {{ ticker }}{% endblock %}
+{% block title %}地址详情 - {{ address }}{% endblock %}
 
 {% block content %}
-    <h2>{{ token.ticker }} 详情</h2>
+    <h2>{{ address }} 详情</h2>
     <section class="info-section">
-        <p><strong>总供应量：</strong> {{ token.max | default('未知') }}</p>
-        <p><strong>持有人数：</strong> {{ pagination.total | default('未知') }}</p>
+        <p>
+            <strong>备注：</strong> {{ remark if remark else '无' }}
+            <a href="#" class="edit-link" onclick="document.getElementById('remark-form').style.display='block';return false;">
+                <i class="fas fa-edit"></i> 添加备注
+            </a>
+        </p>
+        <form id="remark-form" method="POST" action="{{ url_for('remarks') }}" class="remark-form inline-remark-form" style="display:none;" onsubmit="submitRemarkForm(event)">
+            <input type="hidden" name="address" value="{{ address }}">
+            <input type="text" name="remark" placeholder="输入备注" value="{{ remark if remark else '' }}">
+            <button type="submit">保存</button>
+            <button type="button" onclick="document.getElementById('remark-form').style.display='none';">取消</button>
+        </form>
+        <h3>资产总览</h3>
+        <p><strong>总估值：</strong> {{ info.data.chainAssets[0].currencyAmount | float | int | default('未知') }} USD</p>
     </section>
-    <section class="holders-section">
-        <h3>持有人列表</h3>
-        <table class="data-table" id="holders-table">
+    <section class="assets-section">
+        <h3>详细资产清单</h3>
+        <table class="data-table">
             <thead>
                 <tr>
-                    <th>地址</th>
-                    <th>备注</th>
-                    <th>持有量</th>
-                    <th>占总供应量比例</th>
+                    <th>头像</th>
+                    <th>名称</th>
+                    <th>数量</th>
+                    <th>估值</th>
                 </tr>
             </thead>
-            <tbody id="holders-list">
-                {% for holder in holders %}
+            <tbody>
+                {% for token in info.data.tokens.tokenlist %}
                 <tr>
                     <td>
-                        <a href="{{ url_for('address_detail', address=holder.address) }}">
-                            {{ holder.remark | default(holder.address) }}
+                        {% if token.imageUrl %}
+                            <img src="{{ token.imageUrl }}" alt="{{ token.symbol }} 头像" class="token-icon">
+                        {% else %}
+                            <span class="no-icon">无</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('token_detail', ticker=token.symbol) }}">
+                            {{ token.symbol | default('未知') }}
                         </a>
                     </td>
-                    <td>{{ holder.remark | default('无') }}</td>
-                    <td>{{ holder.overallBalance | float | int | default('未知') }}</td>
-                    <td>{{ holder.percentage | float | round(2) | default('未知') }}%</td>
+                    <td>{{ token.coinAmount | float | int | default('未知') }}</td>
+                    <td>{{ token.currencyAmount | float | int | default('未知') }} USD</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <div id="loading" style="display: none; text-align: center; padding: 20px;">
-            加载中...
-        </div>
     </section>
 {% endblock %}
 
 <script>
-    let isLoading = false;
-    let nextStart = {{ pagination.next_start | default(0) }};
-    const limit = {{ pagination.limit }};
-    const ticker = "{{ ticker }}";
-
-    function loadMoreHolders() {
-        if (isLoading || !nextStart) return;
-        isLoading = true;
-        document.getElementById('loading').style.display = 'block';
-
-        fetch(`/token/${ticker}/holders?start=${nextStart}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const holdersList = document.getElementById('holders-list');
-                    data.holders.forEach(holder => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td><a href="/address/${holder.address}">${holder.remark || holder.address}</a></td>
-                            <td>${holder.remark || '无'}</td>
-                            <td>${Math.floor(parseFloat(holder.overallBalance) || 0)}</td>
-                            <td>${(parseFloat(holder.percentage) || 0).toFixed(2)}%</td>
-                        `;
-                        holdersList.appendChild(row);
-                    });
-                    nextStart = data.pagination.next_start || null;
-                    isLoading = false;
-                    document.getElementById('loading').style.display = 'none';
-                }
-            })
-            .catch(error => {
-                console.error('加载持有人失败:', error);
-                isLoading = false;
-                document.getElementById('loading').style.display = 'none';
-            });
+    function submitRemarkForm(event) {
+        event.preventDefault();
+        const form = event.target;
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector('.info-section p').innerHTML = `<strong>备注：</strong> ${data.remark || '无'} <a href="#" class="edit-link" onclick="document.getElementById('remark-form').style.display='block';return false;"><i class="fas fa-edit"></i> 添加备注</a>`;
+                form.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('更新备注失败:', error);
+            alert('更新备注失败，请重试');
+        });
     }
-
-    // 无限滚动检测
-    window.addEventListener('scroll', () => {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
-            loadMoreHolders();
-        }
-    });
-
-    // 页面加载时检查是否需要加载更多数据
-    document.addEventListener('DOMContentLoaded', () => {
-        if (nextStart) {
-            loadMoreHolders();
-        }
-    });
 </script>

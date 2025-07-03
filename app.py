@@ -296,5 +296,5 @@ def check_address():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # 创建数据库表
-    app.run(debug=True, port=3333)
+    app.run(debug=True, port=9999)
 
