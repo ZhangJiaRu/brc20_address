@@ -68,6 +68,21 @@ header h1 {
     background: #218838;
 }
 
+.clear-search {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 25px;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background 0.3s;
+}
+
+.clear-search:hover {
+    background: #5a6268;
+}
+
 nav {
     display: flex;
     justify-content: center;
@@ -271,6 +286,7 @@ section {
         width: 100%;
     }
 }
+
 /* 头像样式 */
 .token-icon {
     width: 32px;
@@ -310,9 +326,6 @@ section {
     width: 120px;
     text-align: right;
 }
-
-
-css
 
 /* 编辑链接样式 */
 .edit-link {
@@ -363,6 +376,77 @@ css
     background: #0056b3;
 }
 
+.inline-remark-form button[type="button"] {
+    background: #6c757d;
+}
+
+.inline-remark-form button[type="button"]:hover {
+    background: #5a6268;
+}
+
+/* 分页样式 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.pagination-link {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    color: #007bff;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.pagination-link:hover {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.pagination-current {
+    padding: 8px 12px;
+    border: 1px solid #007bff;
+    border-radius: 5px;
+    background: #007bff;
+    color: white;
+    font-weight: 500;
+}
+
+.pagination-ellipsis {
+    padding: 8px 12px;
+    color: #666;
+}
+
+.pagination-info {
+    text-align: center;
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+/* 搜索区域样式 */
+.search-section .search-form {
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-bottom: 0;
+}
+
+.search-section .search-form input[type="text"] {
+    width: 250px;
+    border-radius: 5px;
+}
+
+.search-section .search-form button {
+    border-radius: 5px;
+    padding: 10px 15px;
+}
+
 /* 响应式调整 */
 @media (max-width: 768px) {
     .inline-remark-form {
@@ -376,10 +460,605 @@ css
     .inline-remark-form button {
         width: 100%;
     }
+
+    .pagination {
+        gap: 5px;
+    }
+
+    .pagination-link,
+    .pagination-current {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+
+    .search-section .search-form {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-section .search-form input[type="text"] {
+        width: 100%;
+        max-width: 400px;
+    }
+    .inline-remark-form {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    }
+
+    .inline-remark-form input {
+        padding: 5px;
+        font-size: 0.9rem;
+        width: 200px;
+    }
+
+    .inline-remark-form button {
+        padding: 5px 10px;
+        font-size: 0.9rem;
+        cursor: pointer;
+    }
+
+    .data-table td {
+        vertical-align: middle;
+    }
+
+    .edit-link, .delete-link {
+        margin-right: 10px;
+        text-decoration: none;
+        color: #007bff;
+    }
+
+    .edit-link:hover, .delete-link:hover {
+        text-decoration: underline;
+    }
 }
-.inline-remark-form button[type="button"] {
-    background: #6c757d;
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    overflow: auto;
 }
-.inline-remark-form button[type="button"]:hover {
-    background: #5a6268;
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+/* 选项卡样式 */
+.modal-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab-link {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f1f1f1;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.tab-link.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.tab-link:hover {
+    background-color: #e0e0e0;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 按钮和表单样式 */
+.action-buttons {
+    margin: 20px 0;
+}
+
+.action-buttons button {
+    padding: 10px 20px;
+    margin-right: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.action-buttons button:hover {
+    background-color: #0056b3;
+}
+
+.remark-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.remark-form input,
+.remark-form textarea {
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.remark-form button {
+    padding: 8px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.remark-form button:hover {
+    background-color: #218838;
+}
+
+/* 表格和操作样式 */
+.inline-remark-form {
+    display: none;
+    align-items: center;
+    gap: 10px;
+}
+
+.inline-remark-form input {
+    padding: 5px;
+    font-size: 0.9rem;
+    width: 200px;
+}
+
+.inline-remark-form button {
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.data-table td {
+    vertical-align: middle;
+}
+
+.edit-link, .delete-link {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.edit-link:hover, .delete-link:hover {
+    text-decoration: underline;
+}
+/* 动作区域（搜索 + 按钮） */
+.action-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.search-form input {
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 100%;
+    max-width: 300px;
+}
+
+.search-form button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-form button:hover {
+    background-color: #0056b3;
+}
+
+.clear-search {
+    font-size: 0.9rem;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.clear-search:hover {
+    text-decoration: underline;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.action-buttons button {
+    padding: 8px 16px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.action-buttons button:hover {
+    background-color: #218838;
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+/* 选项卡样式 */
+.modal-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab-link {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f1f1f1;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.tab-link.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.tab-link:hover {
+    background-color: #e0e0e0;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 表单样式 */
+.remark-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.remark-form input,
+.remark-form textarea {
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.remark-form button {
+    padding: 8px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.remark-form button:hover {
+    background-color: #218838;
+}
+
+/* 表格和操作样式 */
+.inline-remark-form {
+    display: none;
+    align-items: center;
+    gap: 10px;
+}
+
+.inline-remark-form input {
+    padding: 5px;
+    font-size: 0.9rem;
+    width: 200px;
+}
+
+.inline-remark-form button {
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.data-table td {
+    vertical-align: middle;
+}
+
+.edit-link, .delete-link {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.edit-link:hover, .delete-link:hover {
+    text-decoration: underline;
+}
+/* 动作区域（搜索 + 按钮） */
+.action-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 0; /* 移除按钮之间的间距 */
+    flex-grow: 1;
+}
+
+.search-form input {
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px; /* 输入框左圆角 */
+    width: 100%;
+    max-width: 300px;
+}
+
+.action-button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 0; /* 默认无圆角 */
+    cursor: pointer;
+    margin: 0; /* 移除外边距 */
+    height: 34px; /* 与输入框高度一致 */
+}
+
+/* 搜索按钮右圆角（与输入框连接） */
+.search-form button.action-button {
+    border-radius: 0 4px 4px 0; /* 右圆角 */
+}
+
+/* 新增和导入按钮圆角 */
+.action-buttons .action-button:first-child {
+    border-radius: 4px 0 0 4px; /* 左按钮左圆角 */
+}
+
+.action-buttons .action-button:last-child {
+    border-radius: 0 4px 4px 0; /* 右按钮右圆角 */
+}
+
+.action-button:hover {
+    background-color: #0056b3;
+}
+
+.clear-search {
+    font-size: 0.9rem;
+    color: #007bff;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.clear-search:hover {
+    text-decoration: underline;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0; /* 按钮之间无间距 */
+}
+
+/* 模态框样式 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+}
+
+/* 选项卡样式 */
+.modal-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.tab-link {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #f1f1f1;
+    border: none;
+    transition: background-color 0.3s;
+}
+
+.tab-link.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.tab-link:hover {
+    background-color: #e0e0e0;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 表单样式 */
+.remark-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.remark-form input,
+.remark-form textarea {
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.remark-form button {
+    padding: 8px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.remark-form button:hover {
+    background-color: #218838;
+}
+
+/* 表格和操作样式 */
+.inline-remark-form {
+    display: none;
+    align-items: center;
+    gap: 10px;
+}
+
+.inline-remark-form input {
+    padding: 5px;
+    font-size: 0.9rem;
+    width: 200px;
+}
+
+.inline-remark-form button {
+    padding: 5px 10px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.data-table td {
+    vertical-align: middle;
+}
+
+.edit-link, .delete-link {
+    margin-right: 10px;
+    text-decoration: none;
+    color: #007bff;
+}
+
+.edit-link:hover, .delete-link:hover {
+    text-decoration: underline;
+}
+

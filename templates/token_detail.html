@@ -7,13 +7,13 @@
     <section class="info-section">
         <h3>基本信息</h3>
         <p><strong>总量：</strong> {{ token.max | default('未知') }}</p>
-        <p><strong>持有人：</strong>{{ token.holdersCount | default('未知') }}</p>
-        <p><strong>创建人：</strong><a href="{{ url_for('address_detail', address=token.holdersCount) }}">{{ token.creator | default('未知') }}</a></p>
+        <p><strong>持有人：</strong>{{ pagination.total | default('未知') }}</p>
+        <p><strong>创建人：</strong><a href="{{ url_for('address_detail', address=token.creator) }}">{{ token.creator | default('未知') }}</a></p>
         <p><strong>TX：</strong> <a href="https://mempool.space/zh/tx/{{ token.txid }}">{{ token.txid | default('未知') }}</a></p>
     </section>
     <section class="holders-section">
         <h3>持有者列表</h3>
-        <table class="data-table">
+        <table class="data-table" id="holders-table">
             <thead>
                 <tr>
                     <th>地址</th>
@@ -21,10 +21,20 @@
                     <th>百分比</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="holders-list">
                 {% for holder in holders %}
                 <tr>
-                    <td><a href="{{ url_for('address_detail', address=holder.address) }}">{{ holder.remark }}</a></td>
+                    <td>
+                        <a href="{{ url_for('address_detail', address=holder.address) }}">{{ holder.remark | default(holder.address) }}</a>
+                        <a href="javascript:void(0)" class="edit-link" onclick="showEditForm('{{ holder.address }}', '{{ holder.remark if holder.remark != holder.address else '' }}')">
+                            <i>✏️</i>
+                        </a>
+                        <div id="edit-form-{{ holder.address | replace('.', '_') | replace(':', '_') }}" class="inline-remark-form" style="display: none;">
+                            <input type="text" id="remark-input-{{ holder.address | replace('.', '_') | replace(':', '_') }}" value="{{ holder.remark if holder.remark != holder.address else '' }}" placeholder="输入备注">
+                            <button type="button" onclick="updateRemark('{{ holder.address }}')">保存</button>
+                            <button type="button" onclick="hideEditForm('{{ holder.address }}')">取消</button>
+                        </div>
+                    </td>
                     <td>{{ holder.overallBalance | default('未知') }}</td>
                     <td>
                         {{ "%.2f" % holder.percentage if holder.percentage is defined else '未知' }}%
@@ -36,5 +46,136 @@
                 {% endfor %}
             </tbody>
         </table>
+        <div id="loading" style="display: none; text-align: center; padding: 20px;">
+            加载中...
+        </div>
+        <div id="error" style="display: none; color: red; text-align: center; padding: 20px;"></div>
     </section>
+
+    <script>
+        let isLoading = false;
+        let nextStart = {{ pagination.next_start | default(0) }};
+        const limit = {{ pagination.limit | default(20) }};
+        const ticker = "{{ ticker }}";
+
+        function showEditForm(address, currentRemark) {
+            document.querySelectorAll('.inline-remark-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            
+            const formId = 'edit-form-' + address.replace(/\./g, '_').replace(/:/g, '_');
+            const form = document.getElementById(formId);
+            const input = document.getElementById('remark-input-' + address.replace(/\./g, '_').replace(/:/g, '_'));
+            
+            if (form && input) {
+                form.style.display = 'flex';
+                input.value = currentRemark;
+                input.focus();
+            }
+        }
+        
+        function hideEditForm(address) {
+            const formId = 'edit-form-' + address.replace(/\./g, '_').replace(/:/g, '_');
+            const form = document.getElementById(formId);
+            if (form) {
+                form.style.display = 'none';
+            }
+        }
+        
+        function updateRemark(address) {
+            const input = document.getElementById('remark-input-' + address.replace(/\./g, '_').replace(/:/g, '_'));
+            const remark = input.value.trim();
+            
+            fetch('/update_remark', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    address: address,
+                    remark: remark
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('更新失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('错误:', error);
+                alert('更新失败，请重试');
+            });
+        }
+
+        function loadMoreHolders() {
+            if (isLoading || !nextStart) return;
+            isLoading = true;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+
+            fetch(`/token/${ticker}/holders?start=${nextStart}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const holdersList = document.getElementById('holders-list');
+                        data.holders.forEach(holder => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>
+                                    <a href="/address/${holder.address}">${holder.remark || holder.address}</a>
+                                    <a href="javascript:void(0)" class="edit-link" onclick="showEditForm('${holder.address}', '${holder.remark && holder.remark !== holder.address ? holder.remark : ''}')">
+                                        <i>✏️</i>编辑
+                                    </a>
+                                    <div id="edit-form-${holder.address.replace(/\./g, '_').replace(/:/g, '_')}" class="inline-remark-form" style="display: none;">
+                                        <input type="text" id="remark-input-${holder.address.replace(/\./g, '_').replace(/:/g, '_')}" value="${holder.remark && holder.remark !== holder.address ? holder.remark : ''}" placeholder="输入备注">
+                                        <button type="button" onclick="updateRemark('${holder.address}')">保存</button>
+                                        <button type="button" onclick="hideEditForm('${holder.address}')">取消</button>
+                                    </div>
+                                </td>
+                                <td>${holder.overallBalance || '未知'}</td>
+                                <td>
+                                    ${(parseFloat(holder.percentage) || 0).toFixed(2)}%
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: ${holder.percentage || 0}%"></div>
+                                    </div>
+                                </td>
+                            `;
+                            holdersList.appendChild(row);
+                        });
+                        nextStart = data.pagination.next_start || null;
+                        isLoading = false;
+                        document.getElementById('loading').style.display = 'none';
+                    } else {
+                        document.getElementById('error').innerText = data.message || '加载失败，请稍后重试';
+                        document.getElementById('error').style.display = 'block';
+                        isLoading = false;
+                        document.getElementById('loading').style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('加载持有人失败:', error);
+                    document.getElementById('error').innerText = '加载失败，请稍后重试';
+                    document.getElementById('error').style.display = 'block';
+                    isLoading = false;
+                    document.getElementById('loading').style.display = 'none';
+                });
+        }
+
+        // 无限滚动检测
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
+                loadMoreHolders();
+            }
+        });
+
+        // 页面加载时检查是否需要加载更多数据
+        document.addEventListener('DOMContentLoaded', () => {
+            if (nextStart) {
+                loadMoreHolders();
+            }
+        });
+    </script>
 {% endblock %}

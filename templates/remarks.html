@@ -4,21 +4,18 @@
 
 {% block content %}
     <h2>备注管理</h2>
-    <section class="form-section">
-        <h3>添加单个备注</h3>
-        <form method="POST" action="{{ url_for('remarks') }}" class="remark-form">
-            <input type="text" name="address" placeholder="地址" required>
-            <input type="text" name="remark" placeholder="备注">
-            <button type="submit">添加/编辑备注</button>
-        </form>
-        <h3>批量导入备注</h3>
-        <form method="POST" action="{{ url_for('remarks') }}" class="remark-form">
-            <textarea name="bulk_import" rows="5" placeholder="格式: 地址,备注（每行一个）"></textarea>
-            <button type="submit">导入</button>
+    <section class="search-section">
+        <h3>搜索备注</h3>
+        <form method="GET" action="{{ url_for('remarks') }}" class="search-form">
+            <input type="text" name="search" placeholder="搜索地址或备注" value="{{ search_query or '' }}">
+            <button type="submit">搜索</button>
+            <button onclick="showModal('single')">新增</button>
+            <button onclick="showModal('bulk')">导入</button>
         </form>
     </section>
+
     <section class="remarks-section">
-        <h3>已有备注列表</h3>
+        <h3>已有备注列表 {% if search_query %}(搜索结果){% endif %}</h3>
         <table class="data-table">
             <thead>
                 <tr>
@@ -31,11 +28,212 @@
                 {% for r in remarks %}
                 <tr>
                     <td>{{ r.address }}</td>
-                    <td>{{ r.remark | default('无') }}</td>
-                    <td><a href="{{ url_for('delete_remark', id=r.id) }}" class="delete-link">删除</a></td>
+                    <td>
+                        <span class="remark-text" id="remark-text-{{ r.address | replace('.', '_') | replace(':', '_') }}">{{ r.remark | default('无') }}</span>
+                        <div id="edit-form-{{ r.address | replace('.', '_') | replace(':', '_') }}" class="inline-remark-form" style="display: none;">
+                            <input type="text" id="remark-input-{{ r.address | replace('.', '_') | replace(':', '_') }}" value="{{ r.remark or '' }}" placeholder="输入备注">
+                            <button type="button" onclick="updateRemark('{{ r.address }}')">保存</button>
+                            <button type="button" onclick="hideEditForm('{{ r.address }}')">取消</button>
+                        </div>
+                    </td>
+                    <td>
+                        <a href="javascript:void(0)" class="edit-link" onclick="showEditForm('{{ r.address }}', '{{ r.remark or '' }}')">
+                            <i>✏️</i>编辑
+                        </a>
+                        <a href="{{ url_for('delete_remark', id=r.id) }}" class="delete-link" onclick="return confirm('确定要删除这个备注吗？')">删除</a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        {% if not remarks %}
+            <p style="text-align: center; color: #666; margin: 20px 0;">
+                {% if search_query %}
+                    没有找到匹配的备注记录
+                {% else %}
+                    暂无备注记录
+                {% endif %}
+            </p>
+        {% endif %}
     </section>
+
+    <!-- 模态框 -->
+    <div id="remarkModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>备注管理</h3>
+            <div class="modal-tabs">
+                <button class="tab-link active" onclick="openTab('single')">单个备注</button>
+                <button class="tab-link" onclick="openTab('bulk')">批量导入</button>
+            </div>
+            <div id="single-tab" class="tab-content">
+                <form method="POST" action="{{ url_for('remarks') }}" class="remark-form" onsubmit="return checkAddressExists(event)">
+                    <input type="text" name="address" id="address-input" placeholder="地址" value="{{ prefill_address }}" required>
+                    <input type="text" name="remark" id="remark-input" placeholder="备注">
+                    <button type="submit">添加/编辑备注</button>
+                    <div id="address-exists-warning" style="display: none; color: #dc3545; font-size: 0.9rem; margin-top: 5px;">
+                        该地址已存在，提交将更新现有备注
+                    </div>
+                </form>
+            </div>
+            <div id="bulk-tab" class="tab-content" style="display: none;">
+                <form method="POST" action="{{ url_for('remarks') }}" class="remark-form">
+                    <textarea name="bulk_import" rows="5" placeholder="格式: 地址,备注（每行一个）"></textarea>
+                    <button type="submit">导入</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let checkTimeout;
+
+        // 监听地址输入框变化
+        document.getElementById('address-input').addEventListener('input', function() {
+            const address = this.value.trim();
+            const warning = document.getElementById('address-exists-warning');
+            const remarkInput = document.getElementById('remark-input');
+
+            if (checkTimeout) {
+                clearTimeout(checkTimeout);
+            }
+
+            if (address.length > 10) {
+                checkTimeout = setTimeout(() => {
+                    checkAddressExistence(address, remarkInput);
+                }, 500);
+            } else {
+                warning.style.display = 'none';
+                remarkInput.value = '';
+            }
+        });
+
+        function checkAddressExistence(address, remarkInput) {
+            fetch('/check_address', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    address: address
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const warning = document.getElementById('address-exists-warning');
+                if (data.exists && data.remark) {
+                    warning.style.display = 'block';
+                    remarkInput.value = data.remark;
+                } else {
+                    warning.style.display = 'none';
+                    remarkInput.value = '';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                remarkInput.value = '';
+            });
+        }
+
+        function checkAddressExists(event) {
+            return true;
+        }
+
+        function showEditForm(address, currentRemark) {
+            document.querySelectorAll('.inline-remark-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            document.querySelectorAll('.remark-text').forEach(text => {
+                text.style.display = 'inline';
+            });
+
+            const formId = 'edit-form-' + address.replace(/\./g, '_').replace(/:/g, '_');
+            const textId = 'remark-text-' + address.replace(/\./g, '_').replace(/:/g, '_');
+            const form = document.getElementById(formId);
+            const text = document.getElementById(textId);
+            const input = document.getElementById('remark-input-' + address.replace(/\./g, '_').replace(/:/g, '_'));
+
+            if (form && text && input) {
+                form.style.display = 'flex';
+                text.style.display = 'none';
+                input.value = currentRemark;
+                input.focus();
+            }
+        }
+
+        function hideEditForm(address) {
+            const formId = 'edit-form-' + address.replace(/\./g, '_').replace(/:/g, '_');
+            const textId = 'remark-text-' + address.replace(/\./g, '_').replace(/:/g, '_');
+            const form = document.getElementById(formId);
+            const text = document.getElementById(textId);
+            if (form && text) {
+                form.style.display = 'none';
+                text.style.display = 'inline';
+            }
+        }
+
+        function updateRemark(address) {
+            const input = document.getElementById('remark-input-' + address.replace(/\./g, '_').replace(/:/g, '_'));
+            const remark = input.value.trim();
+
+            fetch('/update_remark', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    address: address,
+                    remark: remark
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('更新失败: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('更新失败，请重试');
+            });
+        }
+
+        // 模态框控制
+        function showModal(tab) {
+            const modal = document.getElementById('remarkModal');
+            modal.style.display = 'block';
+            openTab(tab);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('remarkModal');
+            modal.style.display = 'none';
+            // 清空输入框和警告
+            document.getElementById('address-input').value = '';
+            document.getElementById('remark-input').value = '';
+            document.getElementById('address-exists-warning').style.display = 'none';
+        }
+
+        function openTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.querySelectorAll('.tab-link').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(tabName + '-tab').style.display = 'block';
+            document.querySelector(`.tab-link[onclick="openTab('${tabName}')"]`).classList.add('active');
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('remarkModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+    </script>
 {% endblock %}
